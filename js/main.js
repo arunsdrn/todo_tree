@@ -7,35 +7,27 @@ window.onload = () => {
   const mainView = document.getElementById('mainView');
 
   //Main root object
-  const todoRoot = {
+  const todoTree = {
     root: {
-      folder1: {
-        sub1: {
-          fl1: { fl1: { fl1: { fl1: '1', fl2: '2' }, fl2: '2' }, fl2: '2' },
-          fl2: '2'
-        },
-        sub2: '2'
-      },
-      folder2: {
-        fl1: '1',
-        fl2: '2'
-      },
-      folder3: {
-        fl1: '1',
-        fl2: '2'
-      }
+      folder1: {},
+      folder2: {},
+      folder3: {}
     }
   };
+  const currentRoot = todoTree.root;
 
   const createBreadCrumb = () => {};
 
+  const openIssue = e => {
+    if (e.target.className !== 'issue-node') return;
+    //open issue here
+  };
   const createView = () => {
     let resultEle = '<ul>';
     const eachRecursive = obj => {
       resultEle += '<ul>';
       for (var k in obj) {
-        // console.log(obj[k]);
-        resultEle += `<li>${k}</li>`;
+        resultEle += `<li id=${k} class="issue-node">${k}</li>`;
         if (typeof obj[k] == 'object' && obj[k] !== null) eachRecursive(obj[k]);
         else {
           console.log('yes');
@@ -43,15 +35,18 @@ window.onload = () => {
       }
       resultEle += '</ul>';
     };
-    eachRecursive(todoRoot.root);
+    eachRecursive(todoTree.root);
     resultEle += '</ul>';
     mainView.innerHTML = resultEle;
   };
 
   const addNew = () => {
+    const inputValue = inputTodo.value;
+    currentRoot[inputValue] = {};
     createView();
   };
   createView();
 
   addNewBtn.onclick = addNew;
+  mainView.onclick = openIssue;
 };
