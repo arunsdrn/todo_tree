@@ -8,40 +8,62 @@ window.onload = () => {
 
   //Main root object
   const todoTree = {
-    root: {
-      folder1: {},
-      folder2: {},
-      folder3: {}
+    root: {}
+  };
+  let currentRoot = todoTree.root;
+
+  let breadCrumbEle = Object.keys(todoTree);
+  const createBreadCrumb = () => {
+    console.log(breadCrumbEle);
+    let result = '';
+    for (let i = 0; i < breadCrumbEle.length; i++) {
+      if (i > 0) result += ' >>';
+      result += `<a href='#' class="menu-item">${breadCrumbEle[i]}<a>`;
     }
+    breadCrumb.innerHTML = result;
   };
-  const currentRoot = todoTree.root;
+  createBreadCrumb();
 
-  const createBreadCrumb = () => {};
-
-  const openIssue = e => {
-    if (e.target.className !== 'issue-node') return;
-    //open issue here
-  };
   const createView = () => {
     let resultEle = '<ul>';
-    const eachRecursive = obj => {
-      resultEle += '<ul>';
-      for (var k in obj) {
-        resultEle += `<li id=${k} class="issue-node">${k}</li>`;
-        if (typeof obj[k] == 'object' && obj[k] !== null) eachRecursive(obj[k]);
-        else {
-          console.log('yes');
-        }
-      }
-      resultEle += '</ul>';
-    };
-    eachRecursive(todoTree.root);
+    for (let k in currentRoot) {
+      resultEle += `<li id=${k} class="issue-node">${k}</li>`;
+    }
     resultEle += '</ul>';
     mainView.innerHTML = resultEle;
   };
 
+  const openIssue = e => {
+    if (e.target.className !== 'issue-node') return;
+    const issueName = e.target.innerText;
+    breadCrumbEle.push(issueName);
+    currentRoot = currentRoot[issueName];
+    createBreadCrumb();
+    createView();
+  };
+
+  const gotoFolder = e => {
+    if (e.target.className !== 'menu-item') return;
+    const issueName = e.target.innerText;
+    const newBreadCrumb = [];
+    currentRoot = todoTree;
+    for (let ele of breadCrumbEle) {
+      newBreadCrumb.push(ele);
+      currentRoot = currentRoot[ele];
+      if (ele === issueName) {
+        break;
+      }
+    }
+    breadCrumbEle = newBreadCrumb;
+    createBreadCrumb();
+    createView();
+  };
+
   const addNew = () => {
     const inputValue = inputTodo.value;
+    if (breadCrumbEle.includes(inputValue)) {
+      return alert('issue already exists');
+    }
     currentRoot[inputValue] = {};
     createView();
   };
@@ -49,4 +71,5 @@ window.onload = () => {
 
   addNewBtn.onclick = addNew;
   mainView.onclick = openIssue;
+  breadCrumb.onclick = gotoFolder;
 };
